@@ -2,28 +2,29 @@ import unittest
 
 
 def countPurchases(cost, budget):
-    
-    cost = [c for c in cost if c <= budget]
-    purchases = 0
+    # Filter out items that are more expensive than the budget and calculate their sum
+    affordable_items = [c for c in cost if c <= budget]
+    if not affordable_items:
+        return 0  # Return early if no items can be afforded
 
-    # Loop until no more purchases can be made
-    while cost:
-        # Track if any purchase was made in this iteration to decide whether to continue
-        made_purchase = False
+    total_affordable_sum = sum(affordable_items)
+    min_cost = min(affordable_items) if affordable_items else float('inf')
 
-        # Iterate over a copy of the list since we'll be modifying the original list
-        for c in cost[:]:
-            if c <= budget:
-                budget -= c
-                purchases += 1
-                made_purchase = True
-            else:
-                # Remove items that are no longer affordable
-                cost.remove(c)
+    # Calculate how many full rounds can be made with the total sum of affordable items
+    full_rounds = budget // total_affordable_sum
+    purchases = full_rounds * len(affordable_items)
 
-        # If no purchases were made in this iteration, break out of the loop
-        if not made_purchase:
-            break
+    # Calculate the remaining budget after full rounds
+    remaining_budget = budget % total_affordable_sum
+
+    # Use the remaining budget to buy additional items
+    for item_cost in affordable_items:
+        if item_cost <= remaining_budget:
+            remaining_budget -= item_cost
+            purchases += 1
+            # Break early if the next purchase cannot be made
+            if remaining_budget < min_cost:
+                break
 
     return purchases
 
